@@ -39,6 +39,7 @@ Flickity.createMethods.push('_createLazyload');
 
 Flickity.prototype._createLazyload = function() {
   this.on( 'cellSelect', this.lazyLoad );
+  this.on( 'settle', this.lazyLoad );
 };
 
 Flickity.prototype.lazyLoad = function() {
