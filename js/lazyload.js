@@ -52,7 +52,7 @@ Flickity.prototype.lazyLoad = function() {
   var cellElems;
 
   if ( lazyLoad === 'visible' ) {
-    cellElems = this.getVisibleCells( 1 );
+    cellElems = this.getVisibleCellElements( 1 );
   } else {
     cellElems = this.getAdjacentCellElements( adjCount );
   }
