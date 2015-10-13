@@ -442,10 +442,11 @@ Flickity.prototype.select = function( index, isWrap ) {
   }
 
   if ( this.cells[ index ] ) {
+    var prevSelectedIndex = this.selectedIndex;
     this.selectedIndex = index;
     this.setSelectedCell();
     this.startAnimation();
-    this.dispatchEvent('cellSelect');
+    this.dispatchEvent('cellSelect', null, [ prevSelectedIndex ]);
   }
 };
 
