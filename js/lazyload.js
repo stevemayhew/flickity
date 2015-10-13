@@ -39,6 +39,7 @@ Flickity.createMethods.push('_createLazyload');
 
 Flickity.prototype._createLazyload = function() {
   this.on( 'cellSelect', this.lazyLoad );
+  this.on( 'settle', this.lazyLoad );
 };
 
 Flickity.prototype.lazyLoad = function() {
@@ -46,9 +47,17 @@ Flickity.prototype.lazyLoad = function() {
   if ( !lazyLoad ) {
     return;
   }
+
   // get adjacent cells, use lazyLoad option for adjacent count
   var adjCount = typeof lazyLoad == 'number' ? lazyLoad : 0;
-  var cellElems = this.getAdjacentCellElements( adjCount );
+  var cellElems;
+
+  if ( lazyLoad === 'visible' ) {
+    cellElems = this.getVisibleCellElements( 1 );
+  } else {
+    cellElems = this.getAdjacentCellElements( adjCount );
+  }
+
   // get lazy images in those cells
   var lazyImages = [];
   for ( var i=0, len = cellElems.length; i < len; i++ ) {
