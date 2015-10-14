@@ -450,8 +450,19 @@ Flickity.prototype.select = function( index, isWrap ) {
   }
 };
 
+Flickity.prototype._prevNextStepBy = function( direction, isWrap ) {
+  var stepBy = this.options.prevNextStepBy;
+  if ( typeof stepBy === 'function' ) {
+    stepBy = stepBy.call( this, direction, isWrap );
+  } else {
+    stepBy = parseInt( stepBy, 10 );
+  }
+
+  return stepBy;
+};
+
 Flickity.prototype.previous = function( isWrap ) {
-  var newIndex = this.selectedIndex - this.options.prevNextStepBy;
+  var newIndex = this.selectedIndex - this._prevNextStepBy( -1, isWrap );
   if ( ! isWrap && newIndex < 0 ) {
     newIndex =  this.selectedIndex - 1;
   }
@@ -459,7 +470,7 @@ Flickity.prototype.previous = function( isWrap ) {
 };
 
 Flickity.prototype.next = function( isWrap ) {
-  var newIndex = this.selectedIndex + this.options.prevNextStepBy;
+  var newIndex = this.selectedIndex + this._prevNextStepBy( 1, isWrap );
   if ( ! isWrap && newIndex > this.cells.length ) {
     newIndex =  this.selectedIndex + 1;
   }
