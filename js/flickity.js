@@ -124,7 +124,7 @@ proto._create = function() {
   this.element.flickityGUID = id; // expando
   instances[ id ] = this; // associate via id
   // initial properties
-  this.selectedIndex = 0;
+  this.selectedIndex = undefined;
   // how many frames slider has been in same position
   this.restingFrames = 0;
   // initial physics properties
@@ -191,7 +191,7 @@ proto.activate = function() {
   var index;
   var initialIndex = this.options.initialIndex;
   if ( this.isInitActivated ) {
-    index = this.selectedIndex;
+    index = this.selectedIndex || 0;
   } else if ( initialIndex !== undefined ) {
     index = this.cells[ initialIndex ] ? initialIndex : 0;
   } else {
