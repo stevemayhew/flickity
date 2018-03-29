@@ -39,54 +39,9 @@ gulp.task( 'hint', [ 'hint-js', 'hint-test', 'hint-task', 'jsonlint' ]);
 
 // -------------------------- RequireJS makes pkgd -------------------------- //
 
-// refactored from gulp-requirejs-optimize
-// https://www.npmjs.com/package/gulp-requirejs-optimize/
-
 var gutil = require('gulp-util');
-var through = require('through2');
-var requirejs = require('requirejs');
 var chalk = require('chalk');
-
-function rjsOptimize( options ) {
-  var stream;
-
-  requirejs.define('node/print', [], function() {
-    return function(msg) {
-      if( msg.substring(0, 5) === 'Error' ) {
-        gutil.log( chalk.red( msg ) );
-      } else {
-        gutil.log( msg );
-      }
-    };
-  });
-
-  options = options || {};
-
-  stream = through.obj(function (file, enc, cb) {
-    if ( file.isNull() ) {
-      this.push( file );
-      return cb();
-    }
-
-    options.logLevel = 2;
-
-    options.out = function( text ) {
-      var outFile = new gutil.File({
-        path: file.relative,
-        contents: new Buffer( text )
-      });
-      cb( null, outFile );
-    };
-
-    gutil.log('RequireJS optimizing');
-    requirejs.optimize( options, null, function( err ) {
-      var gulpError = new gutil.PluginError( 'requirejsOptimize', err.message );
-      stream.emit( 'error', gulpError );
-    });
-  });
-
-  return stream;
-}
+var rjsOptimize = require('gulp-requirejs-optimize');
 
 // regex for banner comment
 var reBannerComment = new RegExp('^\\s*(?:\\/\\*[\\s\\S]*?\\*\\/)\\s*');
@@ -111,7 +66,7 @@ gulp.task( 'requirejs', function() {
       baseUrl: 'bower_components',
       optimize: 'none',
       include: [
-        'jquery-bridget/jquery.bridget',
+        'jquery-bridget/jquery-bridget',
         'flickity/js/index',
         'flickity-as-nav-for/as-nav-for',
         'flickity-imagesloaded/flickity-imagesloaded'
@@ -146,14 +101,14 @@ gulp.task( 'uglify', [ 'requirejs' ], function() {
 
 // ----- css ----- //
 
-var minifyCSS = require('gulp-minify-css');
+var cleanCSS = require('gulp-clean-css');
 
 gulp.task( 'css', function() {
   gulp.src('css/flickity.css')
     // copy to dist
     .pipe( gulp.dest('dist') )
     // minify
-    .pipe( minifyCSS({ advanced: false }) )
+    .pipe( cleanCSS({ advanced: false }) )
     .pipe( rename('flickity.min.css') )
     .pipe( replace( '*/', '*/\n' ) )
     .pipe( gulp.dest('dist') );
@@ -176,7 +131,7 @@ gulp.task( 'version', function() {
   gutil.log( 'ticking version to ' + chalk.green( version ) );
 
   function sourceReplace() {
-    return replace( /Flickity v\d\.\d\.\d/, 'Flickity v' + version );
+    return replace( /Flickity v\d\.\d+\.\d+/, 'Flickity v' + version );
   }
 
   gulp.src('js/index.js')
@@ -188,11 +143,12 @@ gulp.task( 'version', function() {
     .pipe( gulp.dest('css') );
 
   gulp.src( [ 'bower.json', 'package.json' ] )
-    .pipe( replace( /"version": "\d\.\d\.\d"/, '"version": "' + version + '"' ) )
+    .pipe( replace( /"version": "\d\.\d+\.\d+"/, '"version": "' + version + '"' ) )
     .pipe( gulp.dest('.') );
   // replace CDN links in README
+  var minorVersion = version.match( /^\d\.\d+/ )[0];
   gulp.src('README.md')
-    .pipe( replace( /ajax\/libs\/flickity\/\d\.\d\.\d/g, 'ajax/libs/flickity/' + version ))
+    .pipe( replace( /flickity@\d\.\d+/g, 'flickity@' + minorVersion ))
     .pipe( gulp.dest('.') );
 });
 
@@ -200,7 +156,6 @@ gulp.task( 'version', function() {
 
 gulp.task( 'default', [
   'hint',
-  'jsonlint',
   'uglify',
-  'css'
+  'css',
 ]);
