@@ -118,7 +118,12 @@ proto.positionSliderAtSelected = function() {
   if ( !this.cells.length ) {
     return;
   }
-  this.x = -this.selectedSlide.target;
+  var target = this.selectedSlide.target;
+  if (this.selectedSlide.targetOffset) {
+    target += this.selectedSlide.targetOffset;
+    delete this.selectedSlide.targetOffset;       // no longer relevant, remove before next select.
+  }
+  this.x = -target;
   this.positionSlider();
 };
 
@@ -141,6 +146,8 @@ proto.settle = function( previousX ) {
   if ( this.restingFrames > 2 ) {
     this.isAnimating = false;
     delete this.isFreeScrolling;
+    delete this.selectedSlide.targetOffset;
+
     // render position with translateX when settled
     this.positionSlider();
     this.dispatchEvent('settle');
@@ -209,7 +216,12 @@ proto.applySelectedAttraction = function() {
   if ( this.isPointerDown || this.isFreeScrolling || !this.cells.length ) {
     return;
   }
-  var distance = this.selectedSlide.target * -1 - this.x;
+  var target = this.selectedSlide.target;
+  if (this.selectedSlide.targetOffset) {
+    target += this.selectedSlide.targetOffset;
+  }
+
+  var distance = target * -1 - this.x;
   var force = distance * this.options.selectedAttraction;
   this.applyForce( force );
 };
