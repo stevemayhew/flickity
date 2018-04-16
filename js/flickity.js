@@ -502,8 +502,9 @@ proto.dispatchEvent = function( type, event, args ) {
  * @param {Integer} index - index of the slide
  * @param {Boolean} isWrap - will wrap-around to last/first if at the end
  * @param {Boolean} isInstant - will immediately set position at selected cell
+ * @param {Integer} offset - position offset from target to add to selected slide
  */
-proto.select = function( index, isWrap, isInstant ) {
+proto.select = function( index, isWrap, isInstant, offset ) {
   if ( !this.isActive ) {
     return;
   }
@@ -518,8 +519,21 @@ proto.select = function( index, isWrap, isInstant ) {
     return;
   }
   var prevSelectedIndex = this.selectedIndex;
+
+  // cleanup previous selection's target offset (if any)
+  if (this.selectedSlide) {
+    delete this.selectedSlide.targetOffset;
+  }
+
   this.selectedIndex = index;
   this.updateSelectedSlide();
+
+  if (offset) {
+    this.selectedSlide.targetOffset = offset;
+  } else {
+    delete this.selectedSlide.targetOffset;
+  }
+
   if ( isInstant ) {
     this.positionSliderAtSelected();
   } else {
@@ -615,7 +629,7 @@ proto.unselectSelectedSlide = function() {
  * select slide from number or cell element
  * @param {Element or Number} elem
  */
-proto.selectCell = function( value, isWrap, isInstant ) {
+proto.selectCell = function( value, isWrap, isInstant, offset ) {
   // get cell
   var cell;
   if ( typeof value == 'number' ) {
@@ -633,7 +647,7 @@ proto.selectCell = function( value, isWrap, isInstant ) {
     var slide = this.slides[i];
     var index = slide.cells.indexOf( cell );
     if ( index != -1 ) {
-      this.select( i, isWrap, isInstant );
+      this.select( i, isWrap, isInstant, offset );
       return;
     }
   }
